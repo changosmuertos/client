@@ -4,7 +4,7 @@ import * as Types from '../../constants/types/wallets'
 import {capitalize} from 'lodash-es'
 import {Avatar, Box2, ClickableBox, Icon, ConnectedUsernames, WaitingButton} from '../../common-adapters'
 import Text, {type TextType} from '../../common-adapters/text'
-import {globalColors, globalMargins, styleSheetCreate} from '../../styles'
+import {collapseStyles, globalColors, globalMargins, styleSheetCreate} from '../../styles'
 import {formatTimeForMessages, formatTimeForStellarTooltip} from '../../util/timestamp'
 import {MarkdownMemo} from '../common'
 
@@ -107,6 +107,7 @@ type DetailProps = {|
   large: boolean,
   pending: boolean,
   yourRole: Types.Role,
+  canceled: boolean,
   counterparty: string,
   counterpartyType: Types.CounterpartyType,
   amountUser: string,
@@ -145,19 +146,21 @@ const Detail = (props: DetailProps) => {
     />
   )
 
+  const textStyle = props.canceled ? styles.lineThrough : null
+
   switch (props.yourRole) {
     case 'senderOnly':
       if (props.counterpartyType === 'otherAccount') {
         const verbPhrase = props.pending ? 'Transferring' : 'You transferred'
         return (
-          <Text type={textTypeSemibold}>
+          <Text type={textTypeSemibold} style={textStyle}>
             {verbPhrase} {amount} from this account to {counterparty()}.
           </Text>
         )
       } else {
-        const verbPhrase = props.pending ? 'Sending' : 'You sent'
+        const verbPhrase = props.pending || props.canceled ? 'Sending' : 'You sent'
         return (
-          <Text type={textTypeSemibold}>
+          <Text type={textTypeSemibold} style={textStyle}>
             {verbPhrase} {amount} to {counterparty()}.
           </Text>
         )
@@ -166,14 +169,14 @@ const Detail = (props: DetailProps) => {
       if (props.counterpartyType === 'otherAccount') {
         const verbPhrase = props.pending ? 'Transferring' : 'You transferred'
         return (
-          <Text type={textTypeSemibold}>
+          <Text type={textTypeSemibold} style={textStyle}>
             {verbPhrase} {amount} from {counterparty()} to this account.
           </Text>
         )
       } else {
-        const verbPhrase = props.pending ? 'sending' : 'sent you'
+        const verbPhrase = props.pending || props.canceled ? 'sending' : 'sent you'
         return (
-          <Text type={textTypeSemibold}>
+          <Text type={textTypeSemibold} style={textStyle}>
             {counterparty()} {verbPhrase} {amount}.
           </Text>
         )
@@ -181,7 +184,7 @@ const Detail = (props: DetailProps) => {
     case 'senderAndReceiver':
       const verbPhrase = props.pending ? 'Transferring' : 'You transferred'
       return (
-        <Text type={textTypeSemibold}>
+        <Text type={textTypeSemibold} style={textStyle}>
           {verbPhrase} {amount} from this account to itself.
         </Text>
       )
@@ -197,6 +200,7 @@ const Detail = (props: DetailProps) => {
 type AmountXLMProps = {|
   yourRole: Types.Role,
   amountXLM: string,
+  canceled: boolean,
   pending: boolean,
   selectableText: boolean,
 |}
@@ -236,11 +240,15 @@ const getAmount = (role: Types.Role, amountXLM: string): string => {
 }
 
 const AmountXLM = (props: AmountXLMProps) => {
-  const color = props.pending ? globalColors.black_20 : roleToColor(props.yourRole)
+  const color = props.pending || props.canceled ? globalColors.black_20 : roleToColor(props.yourRole)
 
   const amount = getAmount(props.yourRole, props.amountXLM)
   return (
-    <Text selectable={props.selectableText} style={{color, textAlign: 'right'}} type="BodyExtrabold">
+    <Text
+      selectable={props.selectableText}
+      style={collapseStyles([{color, textAlign: 'right'}, props.canceled && styles.lineThrough])}
+      type="BodyExtrabold"
+    >
       {amount}
     </Text>
   )
@@ -298,7 +306,7 @@ export type Props = {|
 |}
 
 export const Transaction = (props: Props) => {
-  const pending = !props.timestamp || props.status !== 'completed'
+  const pending = !props.timestamp || ['pending', 'cancelable'].includes(props.status)
   const showMemo =
     props.large && !(props.yourRole === 'receiverOnly' && props.counterpartyType === 'stellarPublicKey')
   const unread = props.readState === 'unread' || props.readState === 'oldestUnread'
@@ -323,6 +331,7 @@ export const Transaction = (props: Props) => {
             <Detail
               large={props.large}
               pending={pending}
+              canceled={props.status === 'canceled'}
               yourRole={props.yourRole}
               counterparty={props.counterparty}
               counterpartyType={props.counterpartyType}
@@ -349,6 +358,7 @@ export const Transaction = (props: Props) => {
               <Box2 direction="horizontal" style={{flex: 1}} />
               <AmountXLM
                 selectableText={props.selectableText}
+                canceled={props.status === 'canceled'}
                 pending={pending}
                 yourRole={props.yourRole}
                 amountXLM={props.amountXLM}
@@ -372,6 +382,9 @@ const styles = styleSheetCreate({
   container: {
     padding: globalMargins.tiny,
     paddingRight: globalMargins.small,
+  },
+  lineThrough: {
+    textDecorationLine: 'line-through',
   },
   marginTopXTiny: {
     marginTop: globalMargins.xtiny,
