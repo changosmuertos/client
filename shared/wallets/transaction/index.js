@@ -246,7 +246,10 @@ const AmountXLM = (props: AmountXLMProps) => {
   return (
     <Text
       selectable={props.selectableText}
-      style={collapseStyles([{color, textAlign: 'right'}, props.canceled && styles.lineThrough])}
+      style={collapseStyles([
+        {color, flexShrink: 0, textAlign: 'right'},
+        props.canceled && styles.lineThrough,
+      ])}
       type="BodyExtrabold"
     >
       {amount}
@@ -341,19 +344,28 @@ export const Transaction = (props: Props) => {
               selectableText={props.selectableText}
             />
             {showMemo && <MarkdownMemo style={styles.marginTopXTiny} memo={props.memo} />}
-            <Box2 direction="horizontal" fullWidth={true}>
+            <Box2
+              direction="horizontal"
+              fullWidth={true}
+              style={showMemo && !!props.memo ? styles.marginTopXTiny : null}
+            >
               {props.onCancelPayment && (
-                <WaitingButton
-                  type="Danger"
-                  label="Cancel"
-                  small={true}
-                  style={styles.cancelButton}
-                  onClick={evt => {
-                    evt.stopPropagation()
-                    props.onCancelPayment && props.onCancelPayment()
-                  }}
-                  waitingKey={props.onCancelPaymentWaitingKey}
-                />
+                <Box2 direction="vertical" gap="tiny">
+                  <Text type="BodySmall">
+                    {props.counterparty} can claim this when they set up their wallet.
+                  </Text>
+                  <WaitingButton
+                    type="Danger"
+                    label="Cancel"
+                    small={true}
+                    style={styles.cancelButton}
+                    onClick={evt => {
+                      evt.stopPropagation()
+                      props.onCancelPayment && props.onCancelPayment()
+                    }}
+                    waitingKey={props.onCancelPaymentWaitingKey}
+                  />
+                </Box2>
               )}
               <Box2 direction="horizontal" style={{flex: 1}} />
               <AmountXLM
@@ -377,7 +389,6 @@ export const Transaction = (props: Props) => {
 const styles = styleSheetCreate({
   cancelButton: {
     alignSelf: 'flex-start',
-    marginTop: globalMargins.tiny,
   },
   container: {
     padding: globalMargins.tiny,
