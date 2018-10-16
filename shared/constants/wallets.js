@@ -62,6 +62,7 @@ const makeBuiltRequest: I.RecordFactory<Types._BuiltRequest> = I.Record({
 })
 
 const makeState: I.RecordFactory<Types._State> = I.Record({
+  acceptedDisclaimer: true,
   accountMap: I.OrderedMap(),
   accountName: '',
   accountNameError: '',
@@ -523,6 +524,8 @@ const getCurrencyAndSymbol = (state: TypedState, code: string) => {
   return currency ? currency.description : code
 }
 
+const getAcceptedDisclaimer = (state: TypedState) => state.wallets.acceptedDisclaimer
+
 const balanceChangeColor = (delta: Types.PaymentDelta, status: Types.StatusSimplified) => {
   let balanceChangeColor = Styles.globalColors.black
   if (delta !== 'none') {
@@ -559,6 +562,7 @@ export {
   confirmFormRouteKey,
   createNewAccountWaitingKey,
   deleteAccountWaitingKey,
+  getAcceptedDisclaimer,
   getAccountIDs,
   getAccounts,
   getAccount,
