@@ -119,6 +119,7 @@ const colorForStatus = (status: Types.StatusSimplified) => {
     case 'pending':
       return Styles.globalColors.black_75
     case 'error':
+    case 'canceled':
       return Styles.globalColors.red
     default:
       return Styles.globalColors.black
@@ -232,7 +233,7 @@ const TransactionDetails = (props: NotLoadingProps) => {
               color={colorForStatus(props.status)}
               fontSize={16}
               type={
-                props.status === 'error'
+                ['error', 'canceled'].includes(props.status)
                   ? 'iconfont-close'
                   : props.status === 'completed'
                     ? 'iconfont-success'
