@@ -182,7 +182,10 @@ type _PaymentsReceivedPayload = $ReadOnly<{|
   payments: Array<Types.Payment>,
   pending: Array<Types.Payment>,
 |}>
-type _RefreshPaymentsPayload = $ReadOnly<{|accountID: Types.AccountID|}>
+type _RefreshPaymentsPayload = $ReadOnly<{|
+  accountID: Types.AccountID,
+  paymentID?: Types.PaymentID,
+|}>
 type _RequestDetailReceivedPayload = $ReadOnly<{|request: StellarRPCTypes.RequestDetailsLocal|}>
 type _RequestPaymentPayload = void
 type _RequestedPaymentPayload = $ReadOnly<{|kbRqID: HiddenString|}>
