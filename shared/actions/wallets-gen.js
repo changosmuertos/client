@@ -184,7 +184,7 @@ type _PaymentsReceivedPayload = $ReadOnly<{|
 |}>
 type _RefreshPaymentsPayload = $ReadOnly<{|
   accountID: Types.AccountID,
-  paymentID?: Types.PaymentID,
+  paymentID: Types.PaymentID,
 |}>
 type _RequestDetailReceivedPayload = $ReadOnly<{|request: StellarRPCTypes.RequestDetailsLocal|}>
 type _RequestPaymentPayload = void
